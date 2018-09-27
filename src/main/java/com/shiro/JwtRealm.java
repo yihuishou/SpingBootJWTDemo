@@ -13,12 +13,11 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * Created by LadyLady on 2018-09-12.
  */
-@Component
+
 public class JwtRealm extends AuthorizingRealm {
 
     @Autowired

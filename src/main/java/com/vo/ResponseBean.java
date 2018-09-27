@@ -6,18 +6,13 @@ import java.util.List;
  * Created by LadyLady on 2018-09-12.
  */
 public class ResponseBean<T> {
-
-    public ResponseBean() {
-
-        super();
-    }
-
-    public ResponseBean(Integer responseCode, String message, Object data, List<T> listDate) {
+    
+    public ResponseBean(Integer responseCode, String message, Object data, List<T> listData) {
 
         this.responseCode = responseCode;
         this.message = message;
         this.data = data;
-        this.listDate = listDate;
+        this.listData = listData;
     }
 
     private String message;
@@ -26,7 +21,7 @@ public class ResponseBean<T> {
 
     private Object data;
 
-    private List<T> listDate;
+    private List<T> listData;
 
     public String getMessage() {
 
@@ -58,13 +53,13 @@ public class ResponseBean<T> {
         this.data = data;
     }
 
-    public List<T> getListDate() {
+    public List<T> getListData() {
 
-        return listDate;
+        return listData;
     }
 
-    public void setListDate(List<T> listDate) {
+    public void setListData(List<T> listData) {
 
-        this.listDate = listDate;
+        this.listData = listData;
     }
 }

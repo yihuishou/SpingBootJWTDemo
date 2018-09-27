@@ -17,13 +17,13 @@ public class JwtUtil {
 
     private static String secret;
 
-    @Value("${shiro.jwt.secret}")
+    @Value("${shiro.jwt.secret:secret}")
     public void setSecret(String secret) {
 
         JwtUtil.secret = secret;
     }
 
-    @Value("${shiro.jwt.accessTokenExpireTime}")
+    @Value("${shiro.jwt.accessTokenExpireTime:300}")
     public void setAccessTokenExpireTime(Long accessTokenExpireTime) {
 
         JwtUtil.accessTokenExpireTime = accessTokenExpireTime;
@@ -48,9 +48,8 @@ public class JwtUtil {
     public static String sign(String uuid, String username, Date createDate) {
 
         try {
-            Long sysTime = System.currentTimeMillis();
 
-            Date expireDate = new Date(sysTime + accessTokenExpireTime * 1000);
+            Date expireDate = new Date(createDate.getTime() + accessTokenExpireTime * 1000);
 
             Algorithm algorithm = Algorithm.HMAC256(secret);
 

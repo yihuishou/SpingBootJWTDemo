@@ -33,6 +33,12 @@ public class JwtConfig {
     }
 
     @Bean
+    public JwtUtil jwtUtil() {
+
+        return new JwtUtil();
+    }
+
+    @Bean
     public JwtFilter jwtFilter() {
 
         return new JwtFilter();

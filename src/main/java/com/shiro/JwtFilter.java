@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletException;
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by LadyLady on 2018-09-12.
  */
-@Component
+
 public class JwtFilter extends BasicHttpAuthenticationFilter {
 
     @Autowired

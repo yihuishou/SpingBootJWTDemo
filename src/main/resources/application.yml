@@ -5,7 +5,7 @@ server:
 # 服务器编码格式
 
 # 全局Debug模式
-debug: true
+debug: false
 
 spring:
   http:
@@ -34,6 +34,7 @@ spring:
     static-path-pattern: /**
 
     # 不使用页面标签默认ICO图标
+
 #    favicon:
 #      enabled: true
 #  resources:
@@ -79,7 +80,7 @@ spring:
       max-pool-prepared-statement-per-connection-size: 20
       stat-view-servlet:
         login-username: admin
-        login-password: 0
+        login-password: admin
 
 # 控制台多彩输出
   output:
@@ -105,15 +106,18 @@ spring:
 #    not-empty: true
 
 # logback日志配置
-#logging:
+logging:
 # 设置文件，可以是绝对路径，也可以是相对路径。
 # file: /log.log
 # 设置目录，会在该目录下创建spring.log文件，并写入日志内容
 # path: /logFile
-# level.com.mapper: debug
+ level.com.mapper: debug
 
 shiro:
   jwt:
+# 签名密钥
     secret: abc
-    accessTokenExpireTime: 300
-    refreshTokenExpireTime: 600
+# token有校时间（秒）
+    accessTokenExpireTime: 600
+# token刷新有校时间（秒）
+    refreshTokenExpireTime: 3600
