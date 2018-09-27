@@ -27,7 +27,7 @@ public class ShiroAESUtil {
     private static String passwordSecret;
 
     @Value("${shiro.passwordsecret:passwordSecret}")
-    public static void setPasswordSecret(String passwordSecret) {
+    public void setPasswordSecret(String passwordSecret) {
 
         ShiroAESUtil.passwordSecret = passwordSecret;
     }

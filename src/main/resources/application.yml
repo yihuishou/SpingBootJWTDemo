@@ -2,6 +2,7 @@
 server:
 # 服务器端口
   port: 80
+
 # 服务器编码格式
 
 # 全局Debug模式
@@ -16,6 +17,12 @@ spring:
 
   redis:
     timeout: 200
+
+# 解决产生多数据源的问题
+  data:
+    redis:
+      repositories:
+        enabled: false
 
 #  thymeleaf:
 
