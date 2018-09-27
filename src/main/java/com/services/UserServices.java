@@ -1,14 +1,11 @@
 package com.services;
 
-import org.springframework.stereotype.Service;
+import com.model.Account;
 
 /**
  * Created by LadyLady on 2018-09-12.
  */
-@Service
-public class UserServices {
 
-
-
+public interface UserServices extends BaseService<Account> {
 
 }

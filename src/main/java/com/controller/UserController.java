@@ -2,23 +2,23 @@ package com.controller;
 
 import com.mapper.AccountMapper;
 import com.model.Account;
+import com.services.UserServices;
 import com.shiro.JwtUtil;
+import com.shiro.ShiroAESUtil;
 import com.shiro.ShiroEnum;
 import com.vo.ResponseBean;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,6 +36,9 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private UserServices userServices;
+
     @PostMapping("login")
     public ResponseBean login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
 
@@ -49,7 +52,7 @@ public class UserController {
             return new ResponseBean<Account>(200, "用户不存在", null, null);
         }
 
-        if (user.getPassword().equals(account.getPassword())) {
+        if (ShiroAESUtil.decrypt(user.getPassword()).equals((account.getPassword()))) {
 
             Date createTokenTime = new Date();
 
@@ -66,33 +69,132 @@ public class UserController {
 
     }
 
-    @RequiresRoles("{admin}")
-    @GetMapping("teacher")
-    public ResponseBean teacher() {
+    @GetMapping("showAll")
+    public ResponseBean selectAllAccount() {
 
-        return new ResponseBean<Account>(200, "teacher", null, null);
+        List<Account> accountList = userServices.selectAll();
+
+        return new ResponseBean(200, null, null, accountList);
+    }
+
+    @PostMapping("addUser")
+    public ResponseBean addAccount(@RequestBody Account account) {
+
+        Account user = accountMapper.selectOne(account);
+
+        if (user == null) {
+
+            String uuid = JwtUtil.randomUuID();
+            String password = account.getPassword();
+            Date now = new Date();
+
+            account.setUuid(uuid);
+            account.setPassword(ShiroAESUtil.encrypt(password));
+            account.setCreatedatetime(now);
+            account.setUpdatedatetime(now);
+            Integer result = accountMapper.insert(account);
+
+            if (result != 1) {
+                return new ResponseBean(400, "添加失败", null, null);
+            }
+
+            return new ResponseBean(200, "添加成功", null, null);
+        } else {
+            return new ResponseBean(400, "用户已存在", null, null);
+        }
 
     }
 
-    @GetMapping("test2")
-    public ResponseBean test2() {
+    @PutMapping("{accountID}")
+    public ResponseBean updateAccount(@PathVariable Integer accountID, @RequestBody Account account) {
+
+        account.setAccount(accountID);
+
+        String password = ShiroAESUtil.encrypt(account.getPassword());
+
+        account.setPassword(password);
+
+        Integer result = accountMapper.updateByPrimaryKeySelective(account);
+
+        if (result != 1) {
+
+            return new ResponseBean(400, "更新失败", null, null);
+        }
+        return new ResponseBean(200, "更新成功", null, null);
+    }
+
+    @DeleteMapping("{accountID}")
+    public ResponseBean deleteAccount(@PathVariable Integer accountID) {
+
+        Account account = new Account();
+
+        account.setAccount(accountID);
+
+        Integer result = accountMapper.deleteByPrimaryKey(account);
+
+        if (result != 1) {
+
+            return new ResponseBean(400, "删除失败", null, null);
+
+        }
+        return new ResponseBean(200, "删除成功", null, null);
+    }
+
+    @GetMapping("online")
+    public ResponseBean onlineState() {
+
+        Set member = stringRedisTemplate.keys(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + "*");
+        return new ResponseBean(200, String.valueOf(member.size()), null, null);
+    }
+
+    @DeleteMapping("down/{accountID}")
+    public ResponseBean onlineDown(@PathVariable Integer accountID) {
+
+        Account account = new Account();
+
+        account.setAccount(accountID);
+
+        Account user = accountMapper.selectOne(account);
+
+        if (user == null) {
+            return new ResponseBean(400, "用户不存在", null, null);
+        }
+
+        boolean userIsOnline = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+
+        if (userIsOnline) {
+
+            stringRedisTemplate.delete(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+
+            boolean result = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+
+            if (result) {
+                return new ResponseBean(400, "下线失败", null, null);
+            }
+
+            return new ResponseBean(400, "下线成功", null, null);
+        }
+
+        return new ResponseBean(400, "用户不在线", null, null);
+
+    }
+
+    @GetMapping("article")
+    public ResponseBean article() {
 
         Subject subject = SecurityUtils.getSubject();
-        // 登录了返回true
         if (subject.isAuthenticated()) {
             return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
         } else {
             return new ResponseBean(200, "你是游客(You are guest)", null, null);
         }
-
     }
 
     @RequiresAuthentication
-    @GetMapping("test")
-    public ResponseBean test() {
+    @GetMapping("article2")
+    public ResponseBean article2() {
 
-        return new ResponseBean(200, "success", null, null);
-
+        return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
     }
 
 }
