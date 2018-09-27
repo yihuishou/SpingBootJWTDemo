@@ -121,3 +121,5 @@ shiro:
     accessTokenExpireTime: 600
 # token刷新有校时间（秒）
     refreshTokenExpireTime: 3600
+
+  passwordsecret: mock

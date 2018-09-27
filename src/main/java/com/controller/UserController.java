@@ -36,12 +36,6 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @PostMapping
-    public ResponseBean add(@RequestBody Account account) {
-
-        return null;
-
-    }
 
     @PostMapping("login")
     public ResponseBean login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
@@ -55,6 +49,7 @@ public class UserController {
         if (user == null) {
             return new ResponseBean<Account>(200, "用户不存在", null, null);
         }
+
 
         if (user.getPassword().equals(account.getPassword())) {
 
