@@ -1,9 +1,12 @@
 package com.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "role")
 public class Role {
+
     @Id
     @Column(name = "roleID")
     private Integer roleid;
@@ -18,6 +21,7 @@ public class Role {
      * @return roleID
      */
     public Integer getRoleid() {
+
         return roleid;
     }
 
@@ -25,6 +29,7 @@ public class Role {
      * @param roleid
      */
     public void setRoleid(Integer roleid) {
+
         this.roleid = roleid;
     }
 
@@ -32,6 +37,7 @@ public class Role {
      * @return roleName
      */
     public String getRolename() {
+
         return rolename;
     }
 
@@ -39,6 +45,7 @@ public class Role {
      * @param rolename
      */
     public void setRolename(String rolename) {
+
         this.rolename = rolename;
     }
 
@@ -46,6 +53,7 @@ public class Role {
      * @return roleDetials
      */
     public String getRoledetials() {
+
         return roledetials;
     }
 
@@ -53,6 +61,7 @@ public class Role {
      * @param roledetials
      */
     public void setRoledetials(String roledetials) {
+
         this.roledetials = roledetials;
     }
 }

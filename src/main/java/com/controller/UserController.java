@@ -1,7 +1,11 @@
 package com.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.mapper.AccountMapper;
+import com.mapper.RoleMapper;
 import com.model.Account;
+import com.model.Role;
 import com.services.UserServices;
 import com.shiro.JwtUtil;
 import com.shiro.ShiroAESUtil;
@@ -39,8 +43,11 @@ public class UserController {
     @Autowired
     private UserServices userServices;
 
+    @Autowired
+    private RoleMapper roleMapper;
+
     @PostMapping("login")
-    public ResponseBean login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
+    public ResponseBean<Account> login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
 
         Account user = new Account();
 
@@ -70,11 +77,11 @@ public class UserController {
     }
 
     @GetMapping("showAll")
-    public ResponseBean selectAllAccount() {
+    public ResponseBean<Account> selectAllAccount() {
 
         List<Account> accountList = userServices.selectAll();
 
-        return new ResponseBean(200, null, null, accountList);
+        return new ResponseBean<>(200, null, null, accountList);
     }
 
     @PostMapping("addUser")
@@ -143,7 +150,7 @@ public class UserController {
     @GetMapping("online")
     public ResponseBean onlineState() {
 
-        Set member = stringRedisTemplate.keys(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + "*");
+        Set<String> member = stringRedisTemplate.keys(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + "*");
         return new ResponseBean(200, String.valueOf(member.size()), null, null);
     }
 
@@ -195,6 +202,16 @@ public class UserController {
     public ResponseBean article2() {
 
         return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
+    }
+
+    @GetMapping("page")
+    public ResponseBean<Role> rolepage() {
+
+        Page page = PageHelper.startPage(67, 6);
+
+        List<Role> role = roleMapper.selectAll();
+
+        return new ResponseBean<>(200, "成功", role, null);
     }
 
 }
