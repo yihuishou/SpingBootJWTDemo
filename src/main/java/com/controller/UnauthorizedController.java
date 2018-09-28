@@ -20,9 +20,10 @@ public class UnauthorizedController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseBean unauthorized(HttpServletRequest request) {
 
-        String message = request.getAttribute("message").toString();
-
-        if (message == null) {
+        String message;
+        try {
+            message = request.getAttribute("message").toString();
+        } catch (NullPointerException e) {
             throw new CustomUnauthorizedException("访问被拒绝");
         }
 
