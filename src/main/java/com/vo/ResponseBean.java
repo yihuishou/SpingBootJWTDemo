@@ -5,14 +5,24 @@ import java.util.List;
 /**
  * Created by LadyLady on 2018-09-12.
  */
-public class ResponseBean<T>  {
-    
+public class ResponseBean<T> {
+
+    public ResponseBean() {
+
+        super();
+    }
+
     public ResponseBean(Integer responseCode, String message, Object data, List<T> listData) {
 
         this.responseCode = responseCode;
         this.message = message;
         this.data = data;
-        this.listData = listData;
+
+        if (listData == null) {
+            this.listData = null;
+        } else {
+            this.listData = listData;
+        }
     }
 
     private String message;

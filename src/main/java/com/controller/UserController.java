@@ -13,9 +13,11 @@ import com.shiro.ShiroEnum;
 import com.vo.ResponseBean;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -186,6 +188,7 @@ public class UserController {
 
     }
 
+    @RequiresRoles("admin")
     @GetMapping("article")
     public ResponseBean article() {
 
@@ -204,14 +207,41 @@ public class UserController {
         return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
     }
 
+    @Cacheable(value = "cachePage")
     @GetMapping("page")
-    public ResponseBean<Role> rolepage() {
+    public ResponseBean rolepage(Integer id) {
 
-        Page page = PageHelper.startPage(67, 6);
+        System.out.println("id = " + id);
+
+        Page page = PageHelper.startPage(1, 6);
 
         List<Role> role = roleMapper.selectAll();
 
-        return new ResponseBean<>(200, "成功", role, null);
+        return new ResponseBean(200, "成功", (Page<Role>) role, null);
+
     }
 
+    @Cacheable(value = "cachePage")
+    @GetMapping("page3")
+    public ResponseBean rolepage3() {
+
+        Page page = PageHelper.startPage(1, 6);
+
+        List<Role> role = roleMapper.selectAll();
+
+        return new ResponseBean(200, "成功", (Page<Role>) role, null);
+
+    }
+
+    @Cacheable(value = "cachePage2", key = "#account.account")
+    @PostMapping("page2")
+    public ResponseBean<Role> rolepage2(@RequestBody Account account) {
+
+        Page page = PageHelper.startPage(3, 6);
+
+        List<Role> role = roleMapper.selectAll();
+
+        return new ResponseBean<Role>(200, "成功", "代泛型", role);
+
+    }
 }

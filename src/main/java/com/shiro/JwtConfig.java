@@ -54,6 +54,7 @@ public class JwtConfig {
     public RedisCacheManager redisCacheManager() {
 
         RedisCacheManager redisCacheManager = new RedisCacheManager();
+        redisCacheManager.setExpire(180);
         redisCacheManager.setRedisManager(redisManager());
         redisCacheManager.setPrincipalIdFieldName("uuid");
         return redisCacheManager;
@@ -88,7 +89,7 @@ public class JwtConfig {
         return filterRegistrationBean;
     }
 
-    @Bean
+    @Bean("shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager, JwtFilter jwtFilter) {
 
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();

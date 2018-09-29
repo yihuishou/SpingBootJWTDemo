@@ -16,7 +16,7 @@ spring:
     type: redis
 
   redis:
-    timeout: 200
+    DefaultExpiration: 60
 
 # 解决产生多数据源的问题
   data:
@@ -121,6 +121,8 @@ logging:
  level.com.mapper: debug
 
 shiro:
+  passwordsecret: mock
+
   jwt:
 # 签名密钥
     secret: abc
@@ -129,4 +131,3 @@ shiro:
 # token刷新有校时间（秒）
     refreshTokenExpireTime: 3600
 
-  passwordsecret: mock
