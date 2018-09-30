@@ -1,9 +1,9 @@
 package com.shiro;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.exception.CustomException;
+import com.exception.ShiroJwtDecodeException;
+import com.exception.ShiroJwtSignatureVerificationException;
+import com.exception.ShiroJwtTokenExpiredException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,15 +53,15 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                 Throwable throwable = e.getCause();
 
-                if (throwable != null && throwable instanceof SignatureVerificationException) {
+                if (throwable != null && throwable instanceof ShiroJwtSignatureVerificationException) {
 
                     message = "Token签名验证失败 (" + throwable.getMessage() + ")";
 
-                } else if (throwable != null && throwable instanceof JWTDecodeException) {
+                } else if (throwable != null && throwable instanceof ShiroJwtDecodeException) {
 
                     message = "Token格式错误 (" + throwable.getMessage() + ")";
 
-                } else if (throwable != null && throwable instanceof TokenExpiredException) {
+                } else if (throwable != null && throwable instanceof ShiroJwtTokenExpiredException) {
 
                     String token = this.getToken(request, response);
 

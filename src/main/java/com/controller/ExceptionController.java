@@ -27,42 +27,42 @@ public class ExceptionController {
     @ExceptionHandler(ShiroException.class)
     public ResponseBean handle401(ShiroException e) {
 
-        return new ResponseBean(401, "无权访问(Unauthorized):" + e.getMessage(), null, null);
+        return new ResponseBean(401, "无权访问(Unauthorized):" + e.getMessage(),  null);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseBean handle401(UnauthorizedException e) {
 
-        return new ResponseBean(401, "无权访问(Unauthorized):当前Subject没有此请求所需权限(" + e.getMessage() + ")", null, null);
+        return new ResponseBean(401, "无权访问(Unauthorized):当前Subject没有此请求所需权限(" + e.getMessage() + ")", null);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseBean handle401(UnauthenticatedException e) {
 
-        return new ResponseBean(401, "无权访问(Unauthorized):当前Subject是匿名Subject，请先登录(This subject is anonymous.)", null, null);
+        return new ResponseBean(401, "无权访问(Unauthorized):当前Subject是匿名Subject，请先登录(This subject is anonymous.)", null);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(CustomUnauthorizedException.class)
     public ResponseBean handle401(CustomUnauthorizedException e) {
 
-        return new ResponseBean(401, "无权访问(Unauthorized):" + e.getMessage(), null, null);
+        return new ResponseBean(401, "无权访问(Unauthorized):" + e.getMessage(),  null);
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseBean methoErro(HttpRequestMethodNotSupportedException e) {
 
-        return new ResponseBean(401, "访问方式无效(Method invalid):" + e.getMessage(), null, null);
+        return new ResponseBean(401, "访问方式无效(Method invalid):" + e.getMessage(),  null);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomException.class)
     public ResponseBean handle(HttpServletRequest request, CustomException e) {
 
-        return new ResponseBean(410, e.getMessage(), null, null);
+        return new ResponseBean(410, e.getMessage(),  null);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -70,7 +70,7 @@ public class ExceptionController {
     public ResponseBean globalException(HttpServletRequest request, Throwable t) {
 
         t.printStackTrace();
-        return new ResponseBean(this.getStatus(request).value(), t.getMessage(), null, null);
+        return new ResponseBean(this.getStatus(request).value(), t.getMessage(),  null);
     }
 
     private HttpStatus getStatus(HttpServletRequest request) {

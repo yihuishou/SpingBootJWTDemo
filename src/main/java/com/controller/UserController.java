@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class UserController {
 
-    @Value("${shiro.jwt.refreshTokenExpireTime:6000}")
+    @Value("${shiro.jwt.refreshtokenexpireTime:6000}")
     private Long refreshTokenExpireTime;
 
     @Autowired
@@ -49,7 +49,7 @@ public class UserController {
     private RoleMapper roleMapper;
 
     @PostMapping("login")
-    public ResponseBean<Account> login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
+    public ResponseBean login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
 
         Account user = new Account();
 
@@ -58,7 +58,7 @@ public class UserController {
         user = accountMapper.selectOne(user);
 
         if (user == null) {
-            return new ResponseBean<Account>(200, "用户不存在", null, null);
+            return new ResponseBean(200, "用户不存在", null);
         }
 
         if (ShiroAESUtil.decrypt(user.getPassword()).equals((account.getPassword()))) {
@@ -71,19 +71,19 @@ public class UserController {
 
             httpServletResponse.addHeader("Authorization", "Bearer " + token);
 
-            return new ResponseBean<Account>(200, "登陆成功", token, null);
+            return new ResponseBean(200, "登陆成功", token);
         } else {
-            return new ResponseBean<Account>(200, "用户名或密码错误", null, null);
+            return new ResponseBean(200, "用户名或密码错误", null);
         }
 
     }
 
     @GetMapping("showAll")
-    public ResponseBean<Account> selectAllAccount() {
+    public ResponseBean selectAllAccount() {
 
         List<Account> accountList = userServices.selectAll();
 
-        return new ResponseBean<>(200, null, null, accountList);
+        return new ResponseBean(200, null,  accountList);
     }
 
     @PostMapping("addUser")
@@ -104,12 +104,12 @@ public class UserController {
             Integer result = accountMapper.insert(account);
 
             if (result != 1) {
-                return new ResponseBean(400, "添加失败", null, null);
+                return new ResponseBean(400, "添加失败", null);
             }
 
-            return new ResponseBean(200, "添加成功", null, null);
+            return new ResponseBean(200, "添加成功", null);
         } else {
-            return new ResponseBean(400, "用户已存在", null, null);
+            return new ResponseBean(400, "用户已存在", null);
         }
 
     }
@@ -127,9 +127,9 @@ public class UserController {
 
         if (result != 1) {
 
-            return new ResponseBean(400, "更新失败", null, null);
+            return new ResponseBean(400, "更新失败", null);
         }
-        return new ResponseBean(200, "更新成功", null, null);
+        return new ResponseBean(200, "更新成功", null);
     }
 
     @DeleteMapping("{accountID}")
@@ -143,17 +143,17 @@ public class UserController {
 
         if (result != 1) {
 
-            return new ResponseBean(400, "删除失败", null, null);
+            return new ResponseBean(400, "删除失败", null);
 
         }
-        return new ResponseBean(200, "删除成功", null, null);
+        return new ResponseBean(200, "删除成功", null);
     }
 
     @GetMapping("online")
     public ResponseBean onlineState() {
 
         Set<String> member = stringRedisTemplate.keys(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + "*");
-        return new ResponseBean(200, String.valueOf(member.size()), null, null);
+        return new ResponseBean(200, String.valueOf(member.size()), null);
     }
 
     @DeleteMapping("down/{accountID}")
@@ -166,7 +166,7 @@ public class UserController {
         Account user = accountMapper.selectOne(account);
 
         if (user == null) {
-            return new ResponseBean(400, "用户不存在", null, null);
+            return new ResponseBean(400, "用户不存在", null);
         }
 
         boolean userIsOnline = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
@@ -178,25 +178,25 @@ public class UserController {
             boolean result = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
 
             if (result) {
-                return new ResponseBean(400, "下线失败", null, null);
+                return new ResponseBean(400, "下线失败", null);
             }
 
-            return new ResponseBean(400, "下线成功", null, null);
+            return new ResponseBean(400, "下线成功", null);
         }
 
-        return new ResponseBean(400, "用户不在线", null, null);
+        return new ResponseBean(400, "用户不在线", null);
 
     }
 
-    @RequiresRoles("admin")
+    @RequiresRoles("教师")
     @GetMapping("article")
     public ResponseBean article() {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
+            return new ResponseBean(200, "您已经登录了(You are already logged in)",  null);
         } else {
-            return new ResponseBean(200, "你是游客(You are guest)", null, null);
+            return new ResponseBean(200, "你是游客(You are guest)",  null);
         }
     }
 
@@ -204,7 +204,7 @@ public class UserController {
     @GetMapping("article2")
     public ResponseBean article2() {
 
-        return new ResponseBean(200, "您已经登录了(You are already logged in)", null, null);
+        return new ResponseBean(200, "您已经登录了(You are already logged in)", null);
     }
 
     @Cacheable(value = "cachePage")
@@ -217,7 +217,7 @@ public class UserController {
 
         List<Role> role = roleMapper.selectAll();
 
-        return new ResponseBean(200, "成功", (Page<Role>) role, null);
+        return new ResponseBean(200, "成功", (Page<Role>) role);
 
     }
 
@@ -229,19 +229,19 @@ public class UserController {
 
         List<Role> role = roleMapper.selectAll();
 
-        return new ResponseBean(200, "成功", (Page<Role>) role, null);
+        return new ResponseBean(200, "成功", (Page<Role>) role);
 
     }
 
     @Cacheable(value = "cachePage2", key = "#account.account")
     @PostMapping("page2")
-    public ResponseBean<Role> rolepage2(@RequestBody Account account) {
+    public ResponseBean rolepage2(@RequestBody Account account) {
 
         Page page = PageHelper.startPage(3, 6);
 
         List<Role> role = roleMapper.selectAll();
 
-        return new ResponseBean<Role>(200, "成功", "代泛型", role);
+        return new ResponseBean(200, "成功", role);
 
     }
 }

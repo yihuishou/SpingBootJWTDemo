@@ -1,28 +1,21 @@
 package com.vo;
 
-import java.util.List;
-
 /**
  * Created by LadyLady on 2018-09-12.
  */
-public class ResponseBean<T> {
+public class ResponseBean {
 
     public ResponseBean() {
 
         super();
     }
 
-    public ResponseBean(Integer responseCode, String message, Object data, List<T> listData) {
+    public ResponseBean(Integer responseCode, String message, Object data) {
 
         this.responseCode = responseCode;
         this.message = message;
         this.data = data;
 
-        if (listData == null) {
-            this.listData = null;
-        } else {
-            this.listData = listData;
-        }
     }
 
     private String message;
@@ -30,8 +23,6 @@ public class ResponseBean<T> {
     private Integer responseCode;
 
     private Object data;
-
-    private List<T> listData;
 
     public String getMessage() {
 
@@ -63,13 +54,4 @@ public class ResponseBean<T> {
         this.data = data;
     }
 
-    public List<T> getListData() {
-
-        return listData;
-    }
-
-    public void setListData(List<T> listData) {
-
-        this.listData = listData;
-    }
 }

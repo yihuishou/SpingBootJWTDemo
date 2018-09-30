@@ -19,8 +19,8 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
 
-    @Value("${spring.redis.defaultExpiration:600}")
-    private Long DefaultExpiration;
+    @Value("${spring.redis.defaultexpiration:600}")
+    private Long defaultExpiration;
 
     @Bean
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
@@ -55,7 +55,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     public CacheManager cacheManager(RedisTemplate redisTemplate) {
 
         RedisCacheManager redisCacheManager = new RedisCacheManager(redisTemplate);
-        redisCacheManager.setDefaultExpiration(DefaultExpiration);
+        redisCacheManager.setDefaultExpiration(defaultExpiration);
         redisCacheManager.setUsePrefix(true);
         return redisCacheManager;
     }

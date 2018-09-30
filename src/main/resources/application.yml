@@ -16,7 +16,7 @@ spring:
     type: redis
 
   redis:
-    DefaultExpiration: 60
+    defaultexpirationtime: 300
 
 # 解决产生多数据源的问题
   data:
@@ -127,7 +127,7 @@ shiro:
 # 签名密钥
     secret: abc
 # token有校时间（秒）
-    accessTokenExpireTime: 600
+    accesstokenexpireTime: 60
 # token刷新有校时间（秒）
-    refreshTokenExpireTime: 3600
+    refreshtokenexpireTime: 3600
 

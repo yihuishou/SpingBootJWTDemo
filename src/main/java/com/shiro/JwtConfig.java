@@ -54,7 +54,8 @@ public class JwtConfig {
     public RedisCacheManager redisCacheManager() {
 
         RedisCacheManager redisCacheManager = new RedisCacheManager();
-        redisCacheManager.setExpire(180);
+        // 指定shiro-redis的过期时间 默认1800秒
+        // redisCacheManager.setExpire(180);
         redisCacheManager.setRedisManager(redisManager());
         redisCacheManager.setPrincipalIdFieldName("uuid");
         return redisCacheManager;
@@ -66,9 +67,7 @@ public class JwtConfig {
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
         defaultWebSecurityManager.setRealm(jwtRealm);
 
-        /*
-         * 关闭shiro自带的session，详情见文档
-         */
+        // 关闭shiro自带的session，详情见文档
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
         DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
         defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
@@ -90,7 +89,7 @@ public class JwtConfig {
     }
 
     @Bean("shiroFilter")
-    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager, JwtFilter jwtFilter) {
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager, JwtFilter jwtFilter) {
 
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 
@@ -103,15 +102,12 @@ public class JwtConfig {
         /*
          * 自定义url规则
          */
-        Map<String, String> filterRuleMap = new HashMap<>();
         // 所有请求通过我们自己的JWT Filter
+        Map<String, String> filterRuleMap = new HashMap<>();
 
         // 访问401和404页面不通过我们的Filter
         filterRuleMap.put("/**", "jwt");
         filterRuleMap.put("/401", "anon");
-        filterRuleMap.put("/403", "anon");
-        filterRuleMap.put("/404", "anon");
-        filterRuleMap.put("/503", "anon");
         filterRuleMap.put("/druid/*", "anon");
         factoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return factoryBean;
