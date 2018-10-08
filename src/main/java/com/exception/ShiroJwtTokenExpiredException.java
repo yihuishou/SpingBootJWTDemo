@@ -5,7 +5,7 @@ import org.apache.shiro.authc.AuthenticationException;
 /**
  * Created by LadyLady on 2018-09-25.
  */
-public class ShiroJwtTokenExpiredException extends AuthenticationException {
+public class ShiroJwtTokenExpiredException extends ShiroJwtException {
 
     public ShiroJwtTokenExpiredException() {
 

@@ -51,17 +51,15 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                 String message = e.getMessage();
 
-                Throwable throwable = e.getCause();
+                if (e instanceof ShiroJwtSignatureVerificationException) {
 
-                if (throwable != null && throwable instanceof ShiroJwtSignatureVerificationException) {
+                    message = "Token签名验证失败 (" + e.getMessage() + ")";
 
-                    message = "Token签名验证失败 (" + throwable.getMessage() + ")";
+                } else if (e instanceof ShiroJwtDecodeException) {
 
-                } else if (throwable != null && throwable instanceof ShiroJwtDecodeException) {
+                    message = "Token格式错误 (" + e.getMessage() + ")";
 
-                    message = "Token格式错误 (" + throwable.getMessage() + ")";
-
-                } else if (throwable != null && throwable instanceof ShiroJwtTokenExpiredException) {
+                } else if (e instanceof ShiroJwtTokenExpiredException) {
 
                     String token = this.getToken(request, response);
 
@@ -105,14 +103,8 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                     }
 
-                    message = "Token刷新失败，Token已过期 (" + throwable.getMessage() + ")";
+                    message = "Token刷新失败，Token已过期 (" + e.getMessage() + ")";
 
-                } else {
-
-                    if (throwable != null) {
-
-                        message = throwable.getMessage();
-                    }
                 }
 
                 this.forward401(request, response, message);

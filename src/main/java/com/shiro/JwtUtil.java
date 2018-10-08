@@ -61,6 +61,7 @@ public class JwtUtil {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.create().withClaim("uuid", uuid).withSubject(username).withIssuedAt(createDate).withExpiresAt(expireDate).sign(algorithm);
+
         } catch (JWTVerificationException e) {
             throw new ShiroJwtException(e.getMessage());
         }
