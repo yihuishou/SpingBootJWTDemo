@@ -98,7 +98,7 @@ public class JwtConfig {
         filterMap.put("jwt", jwtFilter);
         factoryBean.setFilters(filterMap);
         factoryBean.setSecurityManager(securityManager);
-        factoryBean.setUnauthorizedUrl("/401");
+        // factoryBean.setUnauthorizedUrl("/401");
         /*
          * 自定义url规则
          */
