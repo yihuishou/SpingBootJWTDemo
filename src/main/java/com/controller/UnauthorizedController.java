@@ -24,7 +24,7 @@ public class UnauthorizedController {
         try {
             message = request.getAttribute("message").toString();
         } catch (NullPointerException e) {
-            throw new CustomUnauthorizedException("访问被拒绝");
+            throw new CustomUnauthorizedException("无权访问");
         }
 
         throw new CustomUnauthorizedException(message);

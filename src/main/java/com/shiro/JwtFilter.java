@@ -1,11 +1,9 @@
 package com.shiro;
 
-import com.alibaba.fastjson.JSON;
 import com.exception.CustomException;
 import com.exception.ShiroJwtDecodeException;
 import com.exception.ShiroJwtSignatureVerificationException;
 import com.exception.ShiroJwtTokenExpiredException;
-import com.vo.ResponseBean;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +17,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -72,9 +69,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                 }
 
-                // this.response401(request, response, message);
                 this.forward401(request, response, message);
-                // return false;
             }
 
         }
@@ -177,12 +172,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         return super.preHandle(request, response);
     }
 
-    /**
-     * 将非法请求转发到/401
-     */
     private void forward401(ServletRequest request, ServletResponse response, String message) {
-
-        // throw new CustomException("将非法请求转发到/401出现ServletException异常");
 
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
@@ -195,21 +185,6 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             throw new CustomException("将非法请求转发到/401出现ServletException异常");
         } catch (IOException e) {
             throw new CustomException("将非法请求转发到/401出现IOException异常");
-        }
-    }
-
-    private void response401(ServletRequest request, ServletResponse response, String message) {
-
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        httpServletResponse.setStatus(401);
-        httpServletResponse.setCharacterEncoding("UTF-8");
-        httpServletResponse.setContentType("application/json; charset=utf-8");
-
-        try (PrintWriter out = httpServletResponse.getWriter()) {
-            String data = JSON.toJSONString(new ResponseBean(401, "无权访问(Unauthorized):" + message, null));
-            out.append(data);
-        } catch (IOException e) {
-            throw new CustomException("直接返回Response信息出现IOException异常");
         }
     }
 

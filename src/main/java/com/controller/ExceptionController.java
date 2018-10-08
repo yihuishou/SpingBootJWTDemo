@@ -62,7 +62,7 @@ public class ExceptionController {
     @ExceptionHandler(CustomException.class)
     public ResponseBean handle(HttpServletRequest request, CustomException e) {
 
-        return new ResponseBean(410, e.getMessage(),  null);
+        return new ResponseBean(500, e.getMessage(),  null);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -70,7 +70,7 @@ public class ExceptionController {
     public ResponseBean globalException(HttpServletRequest request, Throwable t) {
 
         t.printStackTrace();
-        return new ResponseBean(this.getStatus(request).value(), t.getMessage(),  null);
+        return new ResponseBean(this.getStatus(request).value(),t.toString()+": "+ t.getMessage(),  null);
     }
 
     private HttpStatus getStatus(HttpServletRequest request) {
