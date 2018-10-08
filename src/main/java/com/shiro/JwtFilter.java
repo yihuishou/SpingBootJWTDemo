@@ -1,9 +1,11 @@
 package com.shiro;
 
+import com.alibaba.fastjson.JSON;
 import com.exception.CustomException;
 import com.exception.ShiroJwtDecodeException;
 import com.exception.ShiroJwtSignatureVerificationException;
 import com.exception.ShiroJwtTokenExpiredException;
+import com.vo.ResponseBean;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -69,11 +72,24 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                 }
 
-                this.forward401(request, response, message);
+                this.response401(request, response, message);
+
+                return false;
+
+                // this.forward401(request, response, message);
             }
 
         }
         return true;
+    }
+
+    // 表示访问拒绝时是否自己处理，如果返回true表示自己不处理且继续拦截器链执行，返回false表示自己已经处理了（比如重定向到另一个页面）。
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+
+        this.sendChallenge(request, response);
+
+        return false;
     }
 
     private boolean refreshToken(ServletRequest request, ServletResponse response) {
@@ -128,8 +144,8 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        String authorization = req.getHeader("Authorization");
+        String authorization = getAuthzHeader(request);
+
         return authorization != null;
     }
 
@@ -148,9 +164,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
     private String getToken(ServletRequest request, ServletResponse response) {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
-        return httpServletRequest.getHeader("Authorization").substring(7);
+        return getAuthzHeader(request).substring(7);
     }
 
     /**
@@ -188,4 +202,21 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         }
     }
 
+    private void response401(ServletRequest req, ServletResponse resp, String msg) {
+
+        HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
+        httpServletResponse.setStatus(401);
+        httpServletResponse.setCharacterEncoding("UTF-8");
+        httpServletResponse.setContentType("application/json; charset=utf-8");
+
+        try (PrintWriter out = httpServletResponse.getWriter()) {
+            String data = JSON.toJSONString(new ResponseBean(401, "无权访问(Unauthorized):" + msg, null));
+            data = data.replace("}", ",\"data\":null}");
+            out.append(data);
+        } catch (IOException e) {
+            throw new CustomException("返回Response信息出现IOException异常");
+        }
+    }
 }
+
+
