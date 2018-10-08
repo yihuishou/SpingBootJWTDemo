@@ -1,9 +1,11 @@
 package com.shiro;
 
+import com.alibaba.fastjson.JSON;
 import com.exception.CustomException;
 import com.exception.ShiroJwtDecodeException;
 import com.exception.ShiroJwtSignatureVerificationException;
 import com.exception.ShiroJwtTokenExpiredException;
+import com.vo.ResponseBean;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -61,58 +64,67 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
                 } else if (e instanceof ShiroJwtTokenExpiredException) {
 
-                    String token = this.getToken(request, response);
-
-                    String tokenCreateTime = JwtUtil.getCreateTime(token);
-
-                    String uuid = JwtUtil.getUuID(token);
-
-                    String username = JwtUtil.getUsername(token);
-
-                    if (stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid)) {
-
-                        String tokenCreateTimeInRedis = stringRedisTemplate.opsForValue().get(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid);
-
-                        if (tokenCreateTimeInRedis.equals(tokenCreateTime)) {
-
-                            // 通过说明该AccessToken时间戳与RefreshToken时间戳一致，进行AccessToken刷新
-
-                            // 获取当前时间戳
-                            Date newCreateTokenTime = new Date();
-                            // 获取RefreshToken剩余过期时间
-                            Long refreshTokenExpireTimeInRedis = stringRedisTemplate.getExpire(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid);
-
-                            // 设置RefreshToken中的时间戳为当前时间戳，且过期时间为之前剩余过期时间加上一个新的AccessToken过期时间
-                            stringRedisTemplate.opsForValue().set(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid, newCreateTokenTime.toString(), refreshTokenExpireTimeInRedis + accessTokenExpireTime, TimeUnit.SECONDS);
-
-                            // 刷新AccessToken，设置时间戳为当前时间戳
-                            token = JwtUtil.sign(uuid, username, newCreateTokenTime);
-
-                            // 将刷新的AccessToken存放在Response的Header中的Authorization字段返回
-                            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                            httpServletResponse.setHeader("Authorization", "Bearer " + token);
-                            httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
-                            // 进行Shiro的登录UserRealm
-                            JwtToken jwtToken = new JwtToken(token);
-                            // 提交给UserRealm进行认证，如果错误他会抛出异常并被捕获
-                            this.getSubject(request, response).login(jwtToken);
-                            // 如果没有抛出异常则代表登入成功，返回true
-                            return true;
-
-                        }
-
+                    if (refreshToken(request, response)) {
+                        return true;
                     }
 
                     message = "Token刷新失败，Token已过期 (" + e.getMessage() + ")";
 
                 }
 
+                // this.response401(request, response, message);
                 this.forward401(request, response, message);
-
+                // return false;
             }
 
         }
         return true;
+    }
+
+    private boolean refreshToken(ServletRequest request, ServletResponse response) {
+
+        String token = this.getToken(request, response);
+
+        String tokenCreateTime = JwtUtil.getCreateTime(token);
+
+        String uuid = JwtUtil.getUuID(token);
+
+        String username = JwtUtil.getUsername(token);
+
+        if (stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid)) {
+
+            String tokenCreateTimeInRedis = stringRedisTemplate.opsForValue().get(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid);
+
+            if (tokenCreateTimeInRedis.equals(tokenCreateTime)) {
+
+                // 通过说明该AccessToken时间戳与RefreshToken时间戳一致，进行AccessToken刷新
+
+                // 获取当前时间戳
+                Date newCreateTokenTime = new Date();
+                // 获取RefreshToken剩余过期时间
+                Long refreshTokenExpireTimeInRedis = stringRedisTemplate.getExpire(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid);
+
+                // 设置RefreshToken中的时间戳为当前时间戳，且过期时间为之前剩余过期时间加上一个新的AccessToken过期时间
+                stringRedisTemplate.opsForValue().set(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + uuid, newCreateTokenTime.toString(), refreshTokenExpireTimeInRedis + accessTokenExpireTime, TimeUnit.SECONDS);
+
+                // 刷新AccessToken，设置时间戳为当前时间戳
+                token = JwtUtil.sign(uuid, username, newCreateTokenTime);
+
+                // 将刷新的AccessToken存放在Response的Header中的Authorization字段返回
+                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                httpServletResponse.setHeader("Authorization", "Bearer " + token);
+                httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
+                // 进行Shiro的登录UserRealm
+                JwtToken jwtToken = new JwtToken(token);
+                // 提交给UserRealm进行认证，如果错误他会抛出异常并被捕获
+                this.getSubject(request, response).login(jwtToken);
+                // 如果没有抛出异常则代表登入成功，返回true
+                return true;
+
+            }
+
+        }
+        return false;
     }
 
     /**
@@ -183,6 +195,21 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             throw new CustomException("将非法请求转发到/401出现ServletException异常");
         } catch (IOException e) {
             throw new CustomException("将非法请求转发到/401出现IOException异常");
+        }
+    }
+
+    private void response401(ServletRequest request, ServletResponse response, String message) {
+
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        httpServletResponse.setStatus(401);
+        httpServletResponse.setCharacterEncoding("UTF-8");
+        httpServletResponse.setContentType("application/json; charset=utf-8");
+
+        try (PrintWriter out = httpServletResponse.getWriter()) {
+            String data = JSON.toJSONString(new ResponseBean(401, "无权访问(Unauthorized):" + message, null));
+            out.append(data);
+        } catch (IOException e) {
+            throw new CustomException("直接返回Response信息出现IOException异常");
         }
     }
 
