@@ -1,8 +1,8 @@
 package com.mapper;
 
-import com.model.RolePrower;
+import com.model.AccountUserRole;
 import org.springframework.stereotype.Repository;
 import tk.mybatis.mapper.common.Mapper;
 @Repository
-public interface RoleProwerMapper extends Mapper<RolePrower> {
+public interface AccountUserRoleMapper extends Mapper<AccountUserRole> {
 }

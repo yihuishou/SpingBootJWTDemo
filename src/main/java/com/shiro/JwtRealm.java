@@ -39,9 +39,9 @@ public class JwtRealm extends AuthorizingRealm {
 
         Account account = (Account) principalCollection.getPrimaryPrincipal();
 
-        UserPermission userPermission = accountMapper.findUserPermissionByUuid(account.getUuid());
+        UserPermission userPermission = accountMapper.getUserPowerInfo(account.getId());
 
-        simpleAuthorizationInfo.setRoles(userPermission.getRoleSet());
+        simpleAuthorizationInfo.setRoles(userPermission.getUserRoleSet());
 
         simpleAuthorizationInfo.setStringPermissions(userPermission.getPowerSet());
 
@@ -53,7 +53,7 @@ public class JwtRealm extends AuthorizingRealm {
 
         String token = authenticationToken.getCredentials().toString();
 
-        String uuid = JwtUtil.getUuID(token);
+        Long uuid = JwtUtil.getUuID(token);
 
         if (uuid == null) {
 
@@ -62,7 +62,7 @@ public class JwtRealm extends AuthorizingRealm {
 
         Account account = new Account();
 
-        account.setUuid(uuid);
+        account.setId(uuid);
 
         account = accountMapper.selectOne(account);
 

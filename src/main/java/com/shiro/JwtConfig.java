@@ -57,7 +57,7 @@ public class JwtConfig {
         // 指定shiro-redis的过期时间 默认1800秒
         // redisCacheManager.setExpire(180);
         redisCacheManager.setRedisManager(redisManager());
-        redisCacheManager.setPrincipalIdFieldName("uuid");
+        // redisCacheManager.setPrincipalIdFieldName("uuid");
         return redisCacheManager;
     }
 

@@ -14,7 +14,7 @@ spring:
       charset: utf-8
   cache:
     type: redis
-
+# 缓存有效时间（秒）
   redis:
     defaultexpirationtime: 300
 
@@ -120,6 +120,7 @@ logging:
 # path: /logFile
  level.com.mapper: debug
 
+# tokenAES密钥
 shiro:
   passwordsecret: mock
 

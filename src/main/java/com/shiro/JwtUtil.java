@@ -52,7 +52,7 @@ public class JwtUtil {
 
     }
 
-    public static String sign(String uuid, String username, Date createDate) {
+    public static String sign(Long uuid, String username, Date createDate) {
 
         try {
 
@@ -92,12 +92,12 @@ public class JwtUtil {
 
     }
 
-    public static String getUuID(String token) {
+    public static Long getUuID(String token) {
 
         try {
             DecodedJWT decodedJWT = JWT.decode(token);
 
-            return decodedJWT.getClaim("uuid").asString();
+            return decodedJWT.getClaim("uuid").asLong();
 
         } catch (JWTVerificationException e) {
             throw new ShiroJwtException(e.getMessage());

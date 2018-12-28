@@ -4,55 +4,100 @@ import javax.persistence.*;
 
 @Table(name = "power")
 public class Power {
+    /**
+     * 权限ID
+     */
     @Id
-    @Column(name = "powerID")
-    private Integer powerid;
-
-    @Column(name = "powerName")
-    private String powername;
-
-    @Column(name = "powerDetials")
-    private String powerdetials;
+    @Column(name = "ID")
+    private Integer id;
 
     /**
-     * @return powerID
+     * 许可操作
      */
-    public Integer getPowerid() {
-        return powerid;
+    @Column(name = "action")
+    private String action;
+
+    /**
+     * 权限名
+     */
+    @Column(name = "name")
+    private String name;
+
+    /**
+     * 权限描述
+     */
+    @Column(name = "detail")
+    private String detail;
+
+    /**
+     * 获取权限ID
+     *
+     * @return ID - 权限ID
+     */
+    public Integer getId() {
+        return id;
     }
 
     /**
-     * @param powerid
+     * 设置权限ID
+     *
+     * @param id 权限ID
      */
-    public void setPowerid(Integer powerid) {
-        this.powerid = powerid;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     /**
-     * @return powerName
+     * 获取许可操作
+     *
+     * @return action - 许可操作
      */
-    public String getPowername() {
-        return powername;
+    public String getAction() {
+        return action;
     }
 
     /**
-     * @param powername
+     * 设置许可操作
+     *
+     * @param action 许可操作
      */
-    public void setPowername(String powername) {
-        this.powername = powername;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     /**
-     * @return powerDetials
+     * 获取权限名
+     *
+     * @return name - 权限名
      */
-    public String getPowerdetials() {
-        return powerdetials;
+    public String getName() {
+        return name;
     }
 
     /**
-     * @param powerdetials
+     * 设置权限名
+     *
+     * @param name 权限名
      */
-    public void setPowerdetials(String powerdetials) {
-        this.powerdetials = powerdetials;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * 获取权限描述
+     *
+     * @return detail - 权限描述
+     */
+    public String getDetail() {
+        return detail;
+    }
+
+    /**
+     * 设置权限描述
+     *
+     * @param detail 权限描述
+     */
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 }

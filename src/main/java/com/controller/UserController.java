@@ -3,16 +3,19 @@ package com.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.mapper.AccountMapper;
-import com.mapper.RoleMapper;
+import com.mapper.UserRoleMapper;
 import com.model.Account;
-import com.model.Role;
+import com.model.UserRole;
 import com.services.UserServices;
+import com.shiro.IDGenerator;
 import com.shiro.JwtUtil;
 import com.shiro.ShiroAESUtil;
 import com.shiro.ShiroEnum;
 import com.vo.ResponseBean;
+import com.vo.UserInfo;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +48,7 @@ public class UserController {
     private UserServices userServices;
 
     @Autowired
-    private RoleMapper roleMapper;
+    private UserRoleMapper userRoleMapper;
 
     @PostMapping("login")
     public ResponseBean login(@RequestBody Account account, HttpServletResponse httpServletResponse) {
@@ -64,9 +67,9 @@ public class UserController {
 
             Date createTokenTime = new Date();
 
-            String token = JwtUtil.sign(user.getUuid(), user.getUsername(), createTokenTime);
+            String token = JwtUtil.sign(user.getId(), user.getUsername(), createTokenTime);
 
-            stringRedisTemplate.opsForValue().set(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid(), createTokenTime.toString(), refreshTokenExpireTime, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getId(), createTokenTime.toString(), refreshTokenExpireTime, TimeUnit.SECONDS);
 
             httpServletResponse.addHeader("Authorization", "Bearer " + token);
 
@@ -82,7 +85,7 @@ public class UserController {
 
         List<Account> accountList = userServices.selectAll();
 
-        return new ResponseBean(200, null,  accountList);
+        return new ResponseBean(200, null, accountList);
     }
 
     @PostMapping("addUser")
@@ -92,11 +95,11 @@ public class UserController {
 
         if (user == null) {
 
-            String uuid = JwtUtil.randomUuID();
+            Long accountID = IDGenerator.get().nextId();
             String password = account.getPassword();
             Date now = new Date();
 
-            account.setUuid(uuid);
+            account.setId(accountID);
             account.setPassword(ShiroAESUtil.encrypt(password));
             account.setCreatedatetime(now);
             account.setUpdatedatetime(now);
@@ -114,9 +117,9 @@ public class UserController {
     }
 
     @PutMapping("{accountID}")
-    public ResponseBean updateAccount(@PathVariable Integer accountID, @RequestBody Account account) {
+    public ResponseBean updateAccount(@PathVariable Long accountID, @RequestBody Account account) {
 
-        account.setAccount(accountID);
+        account.setId(accountID);
 
         String password = ShiroAESUtil.encrypt(account.getPassword());
 
@@ -132,11 +135,11 @@ public class UserController {
     }
 
     @DeleteMapping("{accountID}")
-    public ResponseBean deleteAccount(@PathVariable Integer accountID) {
+    public ResponseBean deleteAccount(@PathVariable Long accountID) {
 
         Account account = new Account();
 
-        account.setAccount(accountID);
+        account.setId(accountID);
 
         Integer result = accountMapper.deleteByPrimaryKey(account);
 
@@ -156,11 +159,11 @@ public class UserController {
     }
 
     @DeleteMapping("down/{accountID}")
-    public ResponseBean onlineDown(@PathVariable Integer accountID) {
+    public ResponseBean onlineDown(@PathVariable Long accountID) {
 
         Account account = new Account();
 
-        account.setAccount(accountID);
+        account.setId(accountID);
 
         Account user = accountMapper.selectOne(account);
 
@@ -168,13 +171,13 @@ public class UserController {
             return new ResponseBean(400, "用户不存在", null);
         }
 
-        boolean userIsOnline = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+        boolean userIsOnline = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getId());
 
         if (userIsOnline) {
 
-            stringRedisTemplate.delete(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+            stringRedisTemplate.delete(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getId());
 
-            boolean result = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getUuid());
+            boolean result = stringRedisTemplate.hasKey(ShiroEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getId());
 
             if (result) {
                 return new ResponseBean(400, "下线失败", null);
@@ -187,14 +190,15 @@ public class UserController {
 
     }
 
+    @RequiresPermissions("user:add2")
     @GetMapping("article")
     public ResponseBean article() {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            return new ResponseBean(200, "您已经登录了(You are already logged in)",  null);
+            return new ResponseBean(200, "您已经登录了(You are already logged in)", null);
         } else {
-            return new ResponseBean(200, "你是游客(You are guest)",  null);
+            return new ResponseBean(200, "你是游客(You are guest)", null);
         }
     }
 
@@ -213,9 +217,9 @@ public class UserController {
 
         Page page = PageHelper.startPage(1, 6);
 
-        List<Role> role = roleMapper.selectAll();
+        List<UserRole> role = userRoleMapper.selectAll();
 
-        return new ResponseBean(200, "成功", (Page<Role>) role);
+        return new ResponseBean(200, "成功", (Page<UserRole>) role);
 
     }
 
@@ -225,9 +229,9 @@ public class UserController {
 
         Page page = PageHelper.startPage(1, 6);
 
-        List<Role> role = roleMapper.selectAll();
+        List<UserRole> role = userRoleMapper.selectAll();
 
-        return new ResponseBean(200, "成功", (Page<Role>) role);
+        return new ResponseBean(200, "成功", (Page<UserRole>) role);
 
     }
 
@@ -237,9 +241,15 @@ public class UserController {
 
         Page page = PageHelper.startPage(3, 6);
 
-        List<Role> role = roleMapper.selectAll();
+        List<UserRole> role = userRoleMapper.selectAll();
 
         return new ResponseBean(200, "成功", role);
 
+    }
+
+    @GetMapping("test/{accountID}")
+    public UserInfo test(@PathVariable Long accountID) {
+
+        return accountMapper.getUserInfo(accountID);
     }
 }

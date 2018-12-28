@@ -98,7 +98,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
         String tokenCreateTime = JwtUtil.getCreateTime(token);
 
-        String uuid = JwtUtil.getUuID(token);
+        Long uuid = JwtUtil.getUuID(token);
 
         String username = JwtUtil.getUsername(token);
 

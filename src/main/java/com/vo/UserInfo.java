@@ -1,12 +1,12 @@
 package com.vo;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 /**
- * Created by LadyLady on 2018-09-19.
+ * Created by LadyLady on 2018-12-28.
  */
-public class UserPermission {
+public class UserInfo {
 
     private Long id;
 
@@ -26,9 +26,7 @@ public class UserPermission {
 
     private String note;
 
-    private Set<String> userRoleSet;
-
-    private Set<String> powerSet;
+    private List<RoleInfo> userRoleList;
 
     public Long getId() {
 
@@ -120,24 +118,13 @@ public class UserPermission {
         this.note = note;
     }
 
-    public Set<String> getUserRoleSet() {
+    public List<RoleInfo> getUserRoleList() {
 
-        return userRoleSet;
+        return userRoleList;
     }
 
-    public void setUserRoleSet(Set<String> userRoleSet) {
+    public void setUserRoleList(List<RoleInfo> userRoleList) {
 
-        this.userRoleSet = userRoleSet;
-    }
-
-    public Set<String> getPowerSet() {
-
-        return powerSet;
-    }
-
-    public void setPowerSet(Set<String> powerSet) {
-
-        this.powerSet = powerSet;
+        this.userRoleList = userRoleList;
     }
 }
-
